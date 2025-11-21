@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafe & Resto - Primkoppol</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <h1>Cafe & Resto Primkoppol</h1>
+            <p>Nikmati hidangan lezat berkualitas premium tanpa perlu beranjak dari tempat duduk Anda. Cukup klik, pesan, dan kami antar</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="controls">
+            <select id="categoryFilter">
+                <option value="all">Semua Menu</option>
+            </select>
+        </div>
+
+        <div id="loading">
+            <div class="spinner"></div>
+            <p>Sedang mengambil menu...</p>
+        </div>
+
+        <div class="product-grid" id="productContainer"></div>
+    </div>
+
+    <div class="floating-cart" id="btnOpenCart">
+        <span class="cart-icon">🛒</span>
+        <span class="cart-count" id="cartCount">0</span>
+    </div>
+
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeModal">&times;</span>
+            <h2>Keranjang Pesanan</h2>
+            
+            <div id="cartItemsList" class="cart-list-container">
+                </div>
+
+            <div class="cart-total">
+                Total: <span id="cartTotalPrice">Rp 0</span>
+            </div>
+            
+            <hr>
+
+            <div class="form-group">
+                <label for="inputNama">Nama Pemesan:</label>
+                <input type="text" id="inputNama" placeholder="Nama Anda" autocomplete="off">
+            </div>
+            
+            <div class="form-group">
+                <label for="inputMeja">Nomor Meja:</label>
+                <input type="number" id="inputMeja" placeholder="Contoh: 5">
+            </div>
+
+            <div class="form-group">
+                <label>Metode Pembayaran:</label>
+                <div class="payment-options">
+                    <label class="radio-label">
+                        <input type="radio" name="metodeBayar" value="Tunai" checked onchange="toggleQris(false)">
+                        <span>💵 Tunai</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="metodeBayar" value="QRIS" onchange="toggleQris(true)">
+                        <span>💳 QRIS</span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="qrisArea" class="qris-area" style="display: none;">
+                <p class="qris-title">Scan QRIS untuk Bayar</p>
+                <img src="arsip/qris.jpeg" alt="QRIS Code" class="qris-img">
+                <p class="qris-note">Mohon transfer sesuai <b>Total</b> di atas.</p>
+            </div>
+
+            <button class="btn-wa" id="btnKirimWA">
+                Checkout ke WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <div id="toast">Item ditambahkan ke keranjang</div>
+
+    <script src="script.js"></script>
+</body>
+</html>

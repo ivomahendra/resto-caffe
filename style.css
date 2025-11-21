@@ -1,0 +1,280 @@
+:root {
+    --primary: #2563eb;
+    --dark: #1e293b;
+    --bg: #f1f5f9;
+    --white: #ffffff;
+    --accent: #f59e0b; /* Warna oranye untuk keranjang */
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg);
+    margin: 0;
+    padding: 0;
+    color: var(--dark);
+    padding-bottom: 80px; /* Ruang untuk tombol melayang */
+}
+
+header {
+    background: linear-gradient(135deg, var(--primary), #1d4ed8);
+    color: var(--white);
+    padding: 1.5rem 1rem;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
+.container {
+    max-width: 1400px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.controls { margin-bottom: 2rem; text-align: center; }
+
+select {
+    padding: 0.8rem 1.5rem;
+    border-radius: 50px;
+    border: 1px solid #cbd5e1;
+    font-size: 1rem;
+}
+
+/* GRID PRODUK (5-8 KOLOM) */
+.product-grid {
+    display: grid;
+    gap: 0.8rem;
+    grid-template-columns: repeat(auto-fill, minmax(20%, 1fr));
+}
+
+.card {
+    background: var(--white);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    font-size: 0.85rem;
+    transition: transform 0.2s;
+}
+
+.card:hover { transform: translateY(-3px); }
+
+.card img {
+    width: 100%;
+    height: 90%;
+    object-fit: cover;
+    background: #e2e8f0;
+}
+
+.card-body {
+    padding: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.category-tag { font-size: 0.65rem; color: #64748b; text-transform: uppercase; margin-bottom: 0.2rem; }
+.product-name { font-size: 0.95rem; font-weight: 700; margin: 0 0 0.2rem 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;}
+.product-desc { display: none; } /* Deskripsi disembunyikan agar tampilan padat */
+.price { font-size: 1rem; color: var(--primary); font-weight: 800; margin-bottom: 0.5rem; }
+
+.btn-add {
+    background-color: var(--white);
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    padding: 0.5rem;
+    width: 100%;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.btn-add:hover { background-color: var(--primary); color: white; }
+
+/* LOADING */
+#loading { text-align: center; margin-top: 3rem; }
+.spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 1rem auto; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* FLOATING CART BUTTON */
+.floating-cart {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: var(--accent);
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    cursor: pointer;
+    z-index: 900;
+    transition: transform 0.2s;
+}
+.floating-cart:hover { transform: scale(1.1); }
+.cart-count {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: red;
+    color: white;
+    font-size: 12px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+}
+
+/* MODAL & CART LIST */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+}
+.modal-content {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 450px;
+    position: relative;
+    max-height: 80vh;
+    overflow-y: auto; /* Agar bisa discroll jika belanjaan banyak */
+}
+.close-btn { position: absolute; top: 10px; right: 15px; font-size: 28px; cursor: pointer; }
+
+.cart-list-container { margin: 1rem 0; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.5rem; }
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+.cart-item:last-child { border-bottom: none; }
+.cart-item-info { flex-grow: 1; }
+.cart-item-title { font-weight: bold; font-size: 0.8rem; }
+.cart-item-price { font-size: 2rem; color: #64748b; }
+.cart-controls button {
+    background: #e2e8f0; border: none; width: 25px; height: 25px; border-radius: 4px; cursor: pointer; font-weight: bold;
+}
+.cart-qty { margin: 0 8px; font-weight: bold; }
+
+.cart-total { text-align: right; font-weight: bold; font-size: 1.2rem; color: var(--primary); margin: 1rem 0; }
+.form-group { margin-bottom: 1rem; }
+.form-group input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;}
+.btn-wa { background-color: #25D366; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; }
+
+/* --- TAMPILAN QRIS --- */
+.qris-area {
+    text-align: center;
+    background-color: #f8fafc;
+    border: 2px dashed #cbd5e1; /* Garis putus-putus agar terlihat seperti area scan */
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 1.5rem 0;
+}
+
+.qris-title {
+    font-weight: bold;
+    color: var(--dark);
+    margin: 0 0 10px 0;
+}
+
+.qris-img {
+    max-width: 100%;
+    width: 200px; /* Ukuran gambar QRIS */
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.qris-note {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: 10px;
+}
+/* --- CSS PILIHAN PEMBAYARAN --- */
+.payment-options {
+    display: flex;
+    gap: 1rem;
+    margin-top: 5px;
+}
+
+.radio-label {
+    flex: 1;
+    border: 1px solid #cbd5e1;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.radio-label:hover {
+    background-color: #f1f5f9;
+}
+
+/* Biar input radio tidak terlalu kecil */
+.radio-label input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary); /* Warna biru sesuai tema */
+    cursor: pointer;
+    margin: 0;
+}
+
+/* --- TAMPILAN QRIS (Update Sedikit) --- */
+.qris-area {
+    text-align: center;
+    background-color: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 1rem 0;
+    animation: fadeIn 0.3s; /* Efek muncul pelan */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.qris-title { font-weight: bold; margin-bottom: 10px; }
+.qris-img { max-width: 100%; width: 200px; height: auto; border-radius: 8px; }
+.qris-note { font-size: 0.8rem; color: #64748b; margin-top: 10px; }
+
+/* TOAST NOTIFICATION */
+#toast {
+    visibility: hidden;
+    min-width: 250px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 5px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1001;
+    bottom: 90px;
+    right: 20px;
+    font-size: 14px;
+}
+#toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+@keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 90px; opacity: 1;} }
+@keyframes fadeout { from {bottom: 90px; opacity: 1;} to {bottom: 0; opacity: 0;} }
