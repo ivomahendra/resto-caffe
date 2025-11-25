@@ -159,67 +159,132 @@ function toggleQris(show) {
     }
 }
 
-// --- CHECKOUT KE WA ---
-function checkoutWA() {
+// Fungsi untuk Menampilkan/Sembunyikan Input Alamat
+function toggleDeliveryAddress(show) {
+    const area = document.getElementById('deliveryAddressArea');
+    if (show) {
+        area.style.display = 'block';
+    } else {
+        area.style.display = 'none';
+    }
+}
+
+// --- CHECKOUT KE WA DAN KIRIM DATA KE SHEET ---
+async function checkoutWA() {
     if (cart.length === 0) {
         alert("Keranjang kosong!");
         return;
     }
 
     const nama = document.getElementById('inputNama').value.trim();
-    const meja = document.getElementById('inputMeja').value.trim();
-    
-    // Ambil metode bayar
     const metodeRadio = document.querySelector('input[name="metodeBayar"]:checked');
     const metodeBayar = metodeRadio ? metodeRadio.value : "Tunai";
+    const statusRadio = document.querySelector('input[name="statusOrder"]:checked');
+    const statusOrder = statusRadio ? statusRadio.value : "Pickup";
+    
+    let alamat = "";
 
-    if (!nama || !meja) {
-        alert("Mohon isi Nama dan Nomor Meja!");
+    if (!nama) {
+        alert("Mohon isi Nama Pemesan!");
         return;
     }
-
-    // 1. SUSUN PESAN (Gunakan \n untuk baris baru, bukan %0A)
-    // Emoji aman digunakan di sini karena nanti akan di-encode otomatis
-    let totalBayar = 0;
-    cart.forEach(item => { totalBayar += item.harga * item.qty; });
-
-    let pesan = `*PESANAN BARU!*\n` +
-                `👤 Nama: ${nama}\n` +
-                `🪑 Meja: ${meja}\n\n` +
-                `*Rincian Pesanan:*\n`;
     
-    cart.forEach(item => {
-        const subtotal = item.harga * item.qty;
-        pesan += `- ${item.nama} (${item.qty}x) = ${formatRupiah(subtotal)}\n`;
-    });
-
-    pesan += `\n*TOTAL: ${formatRupiah(totalBayar)}*\n`;
-    pesan += `💳 *Pembayaran:* ${metodeBayar.toUpperCase()}\n`;
-    
-    if(metodeBayar === 'QRIS') {
-        pesan += `(Bukti bayar mohon dilampirkan)\n`;
+    // --- VALIDASI ALAMAT KHUSUS DELIVERY ---
+    if (statusOrder === "Delivery") {
+        alamat = document.getElementById('inputAlamat').value.trim();
+        if (!alamat) {
+            alert("Anda memilih Delivery, mohon isi Alamat Lengkap!");
+            document.getElementById('inputAlamat').focus();
+            return;
+        }
     }
+    // ----------------------------------------
 
-    pesan += `\nMohon segera diproses. Terima kasih!`;
+    // Tampilkan pesan loading sementara
+    document.getElementById('btnKirimWA').innerText = "Memproses & Cek Stok...";
+    document.getElementById('btnKirimWA').disabled = true;
 
-    // 2. BUKA WHATSAPP DENGAN ENCODE
-    // encodeURIComponent akan mengubah Emoji jadi kode persen (misal: %F0%9F%91%A4) agar terbaca WA
-    const urlWA = `https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(pesan)}`;
-    window.open(urlWA, '_blank');
+    // 1. KIRIM DATA KE GOOGLE APPS SCRIPT (Hanya data yang perlu dicatat di sheet)
+    try {
+        const response = await fetch(SHEET_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+            },
+            body: JSON.stringify({
+                nama: nama,
+                cart: cart,
+                metodeBayar: metodeBayar,
+                statusOrder: statusOrder, // Apps Script hanya mencatat status (Delivery/Pickup)
+            }),
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(`GAGAL MEMESAN:\n${result.message}`);
+            document.getElementById('btnKirimWA').innerText = "Checkout ke WhatsApp";
+            document.getElementById('btnKirimWA').disabled = false;
+            return;
+        }
+
+        // 2. JIKA GAS SUKSES, BUAT PESAN WA
+        
+        let totalBayar = 0;
+        cart.forEach(item => { totalBayar += item.harga * item.qty; });
+
+        let pesan = `*PESANAN BARU!*\n` +
+                    `👤 Nama: ${nama}\n` +
+                    `📦 Status: ${statusOrder}\n`;
+        
+        // --- TAMBAHKAN ALAMAT HANYA JIKA DELIVERY ---
+        if (statusOrder === "Delivery") {
+            pesan += `📍 Alamat: ${alamat}\n`; 
+        }
+        pesan += `\n*Rincian Pesanan:*\n`;
+        // --------------------------------------------
+        
+        cart.forEach(item => {
+            const subtotal = item.harga * item.qty;
+            pesan += `- ${item.nama} (${item.qty}x) = ${formatRupiah(subtotal)}\n`;
+        });
+
+        pesan += `\n*TOTAL: ${formatRupiah(totalBayar)}*\n`;
+        pesan += `💳 *Pembayaran:* ${metodeBayar.toUpperCase()}\n`;
+        
+        if(metodeBayar === 'QRIS') {
+            pesan += `(Bukti bayar mohon dilampirkan)\n`;
+        }
+        pesan += `\nMohon segera diproses. Terima kasih!`;
+
+        // Buka WhatsApp
+        const urlWA = `https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(pesan)}`;
+        window.open(urlWA, '_blank');
+        
+        // 3. RESET DATA
+        cart = [];
+        updateCartBadge();
+        renderCartList();
+        
+        // Reset form
+        document.getElementById('inputNama').value = "";
+        document.getElementById('inputAlamat').value = ""; // Kosongkan alamat
+        document.querySelector('input[name="statusOrder"][value="Pickup"]').checked = true; // Kembali ke Pickup
+        document.querySelector('input[value="Tunai"]').checked = true;
+        toggleQris(false); 
+        toggleDeliveryAddress(false); // Sembunyikan alamat lagi
+        
+        tutupModal();
+        showToast("Pesanan berhasil dicatat dan diproses!");
+
+    } catch (error) {
+        alert("Terjadi kesalahan koneksi. Cek URL API dan jaringan.");
+        console.error("Error fetching data:", error);
+    }
     
-    // 3. RESET DATA
-    cart = [];
-    updateCartBadge();
-    renderCartList();
-    
-    // 4. RESET FORM
-    document.getElementById('inputNama').value = "";
-    document.getElementById('inputMeja').value = "";
-    document.querySelector('input[value="Tunai"]').checked = true;
-    toggleQris(false); 
-    
-    tutupModal();
-    showToast("Pesanan diproses, keranjang dikosongkan.");
+    // Pastikan tombol kembali normal di akhir
+    document.getElementById('btnKirimWA').innerText = "Checkout ke WhatsApp";
+    document.getElementById('btnKirimWA').disabled = false;
 }
 
 // Fitur Tambahan: Toast Notification
