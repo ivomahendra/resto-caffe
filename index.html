@@ -53,11 +53,25 @@
                 <label for="inputNama">Nama Pemesan:</label>
                 <input type="text" id="inputNama" placeholder="Nama Anda" autocomplete="off">
             </div>
-            
+
             <div class="form-group">
-                <label for="inputMeja">Nomor Meja:</label>
-                <input type="number" id="inputMeja" placeholder="Contoh: 5">
+                <label>Status Pesanan:</label>
+                <div class="status-options">
+                    <label class="radio-label">
+                        <input type="radio" name="statusOrder" value="Pickup" checked onchange="toggleDeliveryAddress(false)">
+                        <span>🚶‍♂️ Pickup</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="statusOrder" value="Delivery" onchange="toggleDeliveryAddress(true)">
+                        <span>🛵 Delivery</span>
+                    </label>
+                </div>
             </div>
+
+            <div id="deliveryAddressArea" class="form-group" style="display: none;">
+                <label for="inputAlamat">Alamat Lengkap:</label>
+                <textarea id="inputAlamat" placeholder="Contoh: Jalan Melati No. 12, Kelurahan A, RT/RW..."></textarea>
+            </div>            
 
             <div class="form-group">
                 <label>Metode Pembayaran:</label>
